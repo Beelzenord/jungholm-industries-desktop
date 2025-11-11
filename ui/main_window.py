@@ -178,7 +178,19 @@ class MainWindow(QWidget):
         self.log_text = QTextEdit()
         self.log_text.setReadOnly(True)
         self.log_text.setMaximumHeight(150)
-        self.log_text.setStyleSheet("background-color: #f8f9fa;")
+        self.log_text.setStyleSheet("""
+            QTextEdit {
+                background-color: #ffffff;
+                color: #212529;
+                border: 1px solid #dee2e6;
+                border-radius: 5px;
+                padding: 8px;
+                font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+                font-size: 12px;
+                selection-background-color: #007bff;
+                selection-color: #ffffff;
+            }
+        """)
         log_layout.addWidget(self.log_text)
         
         log_group.setLayout(log_layout)
