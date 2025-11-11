@@ -100,6 +100,43 @@ class SupabaseClient:
             logger.error(f"Failed to fetch products: {e}")
             return []
     
+    def get_upcoming_bookings(self) -> List[Dict[str, Any]]:
+        """Fetch upcoming confirmed bookings for the current user"""
+        try:
+            user = self.get_current_user()
+            if not user:
+                return []
+            
+            profile_id = user.user.id
+            now_iso = datetime.now(timezone.utc).isoformat()
+            
+            # Get confirmed bookings that haven't started yet (start_time >= now)
+            # Include product name via foreign key relationship
+            response = self.client.table("bookings").select(
+                "*, product_id, products!inner(name)"
+            ).eq(
+                "user_id", profile_id
+            ).eq(
+                "status", "confirmed"
+            ).gte("start_time", now_iso).order("start_time").limit(5).execute()
+            
+            return response.data if response.data else []
+        except Exception as e:
+            logger.error(f"Failed to fetch upcoming bookings: {e}")
+            # Try without join if it fails
+            try:
+                response = self.client.table("bookings").select(
+                    "*"
+                ).eq(
+                    "user_id", profile_id
+                ).eq(
+                    "status", "confirmed"
+                ).gte("start_time", now_iso).order("start_time").limit(5).execute()
+                return response.data if response.data else []
+            except Exception as e2:
+                logger.error(f"Failed to fetch bookings without join: {e2}")
+                return []
+    
     def start_session(self, product_id: str) -> Tuple[bool, Optional[str], Optional[str]]:
         """
         Start a usage session

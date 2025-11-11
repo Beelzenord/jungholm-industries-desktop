@@ -1,6 +1,6 @@
 """Main window for instrument selection and session management"""
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
@@ -28,7 +28,9 @@ class MainWindow(QWidget):
         self.session_timer.timeout.connect(self.update_timer_display)
         self.init_ui()
         self.load_instruments()
+        self.check_upcoming_bookings()
         self.setup_offline_queue_timer()
+        self.setup_booking_check_timer()
     
     def init_ui(self):
         """Initialize the UI"""
@@ -65,6 +67,27 @@ class MainWindow(QWidget):
         header_layout.addWidget(logout_button)
         
         layout.addLayout(header_layout)
+        
+        # Booking info section
+        booking_group = QGroupBox("Upcoming Booking")
+        booking_layout = QVBoxLayout()
+        
+        self.booking_info_label = QLabel("Checking for upcoming bookings...")
+        self.booking_info_label.setWordWrap(True)
+        self.booking_info_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.booking_info_label.setStyleSheet("""
+            QLabel {
+                color: #212529;
+                font-size: 13px;
+                padding: 10px;
+                background-color: #f8f9fa;
+                border-radius: 5px;
+            }
+        """)
+        booking_layout.addWidget(self.booking_info_label)
+        
+        booking_group.setLayout(booking_layout)
+        layout.addWidget(booking_group)
         
         # Instrument selection group
         instrument_group = QGroupBox("Select Instrument")
@@ -269,6 +292,138 @@ class MainWindow(QWidget):
             self.session_start_time = None
             self.supabase_client.logout()
             self.logout_requested.emit()
+    
+    def setup_booking_check_timer(self):
+        """Setup timer to check booking countdown every minute"""
+        self.booking_timer = QTimer()
+        self.booking_timer.timeout.connect(self.check_upcoming_bookings)
+        self.booking_timer.start(60000)  # Check every minute
+    
+    def check_upcoming_bookings(self):
+        """Check for upcoming bookings and update display"""
+        try:
+            bookings = self.supabase_client.get_upcoming_bookings()
+            
+            if not bookings:
+                self.booking_info_label.setText(
+                    "No upcoming bookings found.\n\n"
+                    "You can start a session at any time."
+                )
+                self.booking_info_label.setStyleSheet("""
+                    QLabel {
+                        color: #6c757d;
+                        font-size: 13px;
+                        padding: 10px;
+                        background-color: #f8f9fa;
+                        border-radius: 5px;
+                    }
+                """)
+                return
+            
+            # Get the next booking
+            next_booking = bookings[0]
+            start_time_str = next_booking.get("start_time")
+            
+            if not start_time_str:
+                self.booking_info_label.setText("Upcoming booking found, but start time is missing.")
+                return
+            
+            # Parse start time
+            start_time_str_clean = start_time_str.replace('Z', '+00:00') if 'Z' in start_time_str else start_time_str
+            start_time = datetime.fromisoformat(start_time_str_clean)
+            if start_time.tzinfo is None:
+                start_time = start_time.replace(tzinfo=timezone.utc)
+            
+            now = datetime.now(timezone.utc)
+            time_until = start_time - now
+            minutes_until = int(time_until.total_seconds() / 60)
+            
+            # Get product name
+            product_name = "Unknown Instrument"
+            # Try to get from joined products table
+            if "products" in next_booking and isinstance(next_booking["products"], dict):
+                product_name = next_booking["products"].get("name", "Unknown Instrument")
+            # Fallback: try to get from instruments list
+            elif next_booking.get("product_id"):
+                product_id = next_booking.get("product_id")
+                for inst in self.instruments:
+                    if inst.get("id") == product_id:
+                        product_name = inst.get("name", "Unknown Instrument")
+                        break
+            
+            # Format start time for display
+            start_time_local = start_time.astimezone()
+            start_time_formatted = start_time_local.strftime("%Y-%m-%d %H:%M")
+            
+            if minutes_until <= 30:
+                # Within 30 minutes - show countdown
+                if minutes_until <= 0:
+                    message = (
+                        f"⚠️ Your booking is starting now!\n\n"
+                        f"Instrument: {product_name}\n"
+                        f"Scheduled: {start_time_formatted}\n\n"
+                        f"You can start your session."
+                    )
+                    bg_color = "#fff3cd"
+                    text_color = "#856404"
+                else:
+                    hours = minutes_until // 60
+                    mins = minutes_until % 60
+                    if hours > 0:
+                        time_str = f"{hours}h {mins}m"
+                    else:
+                        time_str = f"{mins} minutes"
+                    
+                    message = (
+                        f"⏰ Your booking starts in {time_str}!\n\n"
+                        f"Instrument: {product_name}\n"
+                        f"Scheduled: {start_time_formatted}\n\n"
+                        f"Get ready to start your session."
+                    )
+                    bg_color = "#d1ecf1"
+                    text_color = "#0c5460"
+            else:
+                # More than 30 minutes away
+                hours = minutes_until // 60
+                mins = minutes_until % 60
+                if hours > 0:
+                    time_str = f"{hours} hour{'s' if hours > 1 else ''} and {mins} minute{'s' if mins != 1 else ''}"
+                else:
+                    time_str = f"{mins} minutes"
+                
+                message = (
+                    f"📅 Upcoming booking\n\n"
+                    f"Instrument: {product_name}\n"
+                    f"Scheduled: {start_time_formatted}\n"
+                    f"Time until: {time_str}"
+                )
+                bg_color = "#d4edda"
+                text_color = "#155724"
+            
+            self.booking_info_label.setText(message)
+            self.booking_info_label.setStyleSheet(f"""
+                QLabel {{
+                    color: {text_color};
+                    font-size: 13px;
+                    padding: 10px;
+                    background-color: {bg_color};
+                    border-radius: 5px;
+                    font-weight: 500;
+                }}
+            """)
+            
+        except Exception as e:
+            logger.error(f"Failed to check upcoming bookings: {e}")
+            self.booking_info_label.setText("Unable to check for upcoming bookings.")
+            self.booking_info_label.setStyleSheet("""
+                QLabel {
+                    color: #721c24;
+                    font-size: 13px;
+                    padding: 10px;
+                    background-color: #f8d7da;
+                    border-radius: 5px;
+                }
+            """)
     
     def setup_offline_queue_timer(self):
         """Setup timer to process offline queue periodically"""
