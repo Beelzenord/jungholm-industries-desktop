@@ -1,4 +1,4 @@
-# Gateway Application - jungholm industries
+# Gateway Application - jungholm instruments
 
 A cross-platform desktop gateway application for researchers to activate lab instruments.
 
@@ -45,9 +45,9 @@ pip install -r requirements.txt
 ### macOS (Recommended - Proper Dock Icon)
 For proper macOS dock icon display with rounded corners:
 ```bash
-open jungholm-industries-gateway.app
+open jungholm-instruments-gateway.app
 ```
-Or double-click `jungholm-industries-gateway.app` in Finder.
+Or double-click `jungholm-instruments-gateway.app` in Finder.
 
 ### All Platforms (Direct Python)
 Run the application directly:

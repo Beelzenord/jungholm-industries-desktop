@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont, QIcon
 from config import APP_NAME
+from ui.stylesheet_loader import load_stylesheet
 
 logger = logging.getLogger(__name__)
 
@@ -62,36 +63,8 @@ def create_styled_message_box(parent, icon_type, title, message):
     msg_box.setWindowTitle(title)
     msg_box.setText(message)
     
-    # Apply clear, high-contrast styling
-    msg_box.setStyleSheet("""
-        QMessageBox {
-            background-color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        }
-        QMessageBox QLabel {
-            color: #212529;
-            font-size: 14px;
-            font-weight: 500;
-            min-width: 300px;
-            padding: 10px;
-        }
-        QMessageBox QPushButton {
-            background-color: #007bff;
-            color: #ffffff;
-            border: none;
-            border-radius: 6px;
-            padding: 8px 20px;
-            font-size: 13px;
-            font-weight: 600;
-            min-width: 80px;
-        }
-        QMessageBox QPushButton:hover {
-            background-color: #0056b3;
-        }
-        QMessageBox QPushButton:pressed {
-            background-color: #004085;
-        }
-    """)
+    # Load stylesheet from external file
+    msg_box.setStyleSheet(load_stylesheet("messagebox.qss"))
     
     return msg_box
 
@@ -114,13 +87,8 @@ class LoginWindow(QWidget):
         # Set window icon
         self.setWindowIcon(get_app_icon())
         
-        # Apply modern styling to the window
-        self.setStyleSheet("""
-            QWidget {
-                background-color: #f8f9fa;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            }
-        """)
+        # Load and apply stylesheet from external file
+        self.setStyleSheet(load_stylesheet("login.qss"))
         
         # Main layout
         layout = QVBoxLayout()
@@ -129,31 +97,21 @@ class LoginWindow(QWidget):
         
         # Branding section with improved styling
         title_label = QLabel(APP_NAME)
+        title_label.setObjectName("title")
         title_font = QFont()
         title_font.setPointSize(28)
         title_font.setBold(True)
         title_font.setWeight(QFont.Weight.Bold)
         title_label.setFont(title_font)
         title_label.setAlignment(Qt.AlignCenter)
-        title_label.setStyleSheet("""
-            QLabel {
-                color: #212529;
-                margin-bottom: 10px;
-            }
-        """)
         layout.addWidget(title_label)
         
         subtitle_label = QLabel("Gateway Application")
+        subtitle_label.setObjectName("subtitle")
         subtitle_font = QFont()
         subtitle_font.setPointSize(12)
         subtitle_label.setFont(subtitle_font)
         subtitle_label.setAlignment(Qt.AlignCenter)
-        subtitle_label.setStyleSheet("""
-            QLabel {
-                color: #6c757d;
-                margin-bottom: 20px;
-            }
-        """)
         layout.addWidget(subtitle_label)
         
         layout.addSpacing(30)
@@ -165,104 +123,46 @@ class LoginWindow(QWidget):
         form_layout.setFormAlignment(Qt.AlignHCenter | Qt.AlignTop)
         form_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
         
-        # Email field with modern styling
+        # Email field with modern styling (styles from external QSS)
         email_label = QLabel("Email:")
+        email_label.setObjectName("form_label")
         email_label.setMinimumWidth(80)  # Fixed width for consistent alignment
-        email_label.setStyleSheet("""
-            QLabel {
-                color: #495057;
-                font-weight: 500;
-                font-size: 13px;
-                padding-right: 10px;
-            }
-        """)
+        # Ensure dark color is set (fallback if stylesheet doesn't apply)
+        from PySide6.QtGui import QPalette
+        palette = email_label.palette()
+        palette.setColor(QPalette.ColorRole.WindowText, Qt.GlobalColor.black)
+        email_label.setPalette(palette)
         self.email_input = QLineEdit()
         self.email_input.setPlaceholderText("Enter your email address")
         self.email_input.setMinimumHeight(45)
-        self.email_input.setStyleSheet("""
-            QLineEdit {
-                background-color: white;
-                border: 2px solid #dee2e6;
-                border-radius: 8px;
-                padding: 10px 15px;
-                font-size: 14px;
-                color: #212529;
-            }
-            QLineEdit:focus {
-                border: 2px solid #007bff;
-                background-color: #ffffff;
-            }
-            QLineEdit:hover {
-                border: 2px solid #adb5bd;
-            }
-        """)
         form_layout.addRow(email_label, self.email_input)
         
-        # Password field with modern styling
+        # Password field with modern styling (styles from external QSS)
         password_label = QLabel("Password:")
+        password_label.setObjectName("form_label")
         password_label.setMinimumWidth(80)  # Same width as email label for alignment
-        password_label.setStyleSheet("""
-            QLabel {
-                color: #495057;
-                font-weight: 500;
-                font-size: 13px;
-                padding-right: 10px;
-            }
-        """)
+        # Ensure dark color is set (fallback if stylesheet doesn't apply)
+        palette = password_label.palette()
+        palette.setColor(QPalette.ColorRole.WindowText, Qt.GlobalColor.black)
+        password_label.setPalette(palette)
         self.password_input = QLineEdit()
         self.password_input.setPlaceholderText("Enter your password")
         self.password_input.setEchoMode(QLineEdit.Password)
         self.password_input.setMinimumHeight(45)
-        self.password_input.setStyleSheet("""
-            QLineEdit {
-                background-color: white;
-                border: 2px solid #dee2e6;
-                border-radius: 8px;
-                padding: 10px 15px;
-                font-size: 14px;
-                color: #212529;
-            }
-            QLineEdit:focus {
-                border: 2px solid #007bff;
-                background-color: #ffffff;
-            }
-            QLineEdit:hover {
-                border: 2px solid #adb5bd;
-            }
-        """)
         form_layout.addRow(password_label, self.password_input)
         
         layout.addLayout(form_layout)
         
         layout.addSpacing(10)
         
-        # Login button with improved styling
+        # Login button with improved styling (styles from external QSS)
         self.login_button = QPushButton("Login")
+        self.login_button.setObjectName("login_button")
         self.login_button.setMinimumHeight(50)
         login_font = QFont()
         login_font.setPointSize(14)
         login_font.setBold(True)
         self.login_button.setFont(login_font)
-        self.login_button.setStyleSheet("""
-            QPushButton {
-                background-color: #007bff;
-                color: white;
-                border: none;
-                border-radius: 8px;
-                font-weight: bold;
-                padding: 12px;
-            }
-            QPushButton:hover {
-                background-color: #0056b3;
-            }
-            QPushButton:pressed {
-                background-color: #004085;
-            }
-            QPushButton:disabled {
-                background-color: #6c757d;
-                color: #ffffff;
-            }
-        """)
         self.login_button.clicked.connect(self.handle_login)
         layout.addWidget(self.login_button)
         

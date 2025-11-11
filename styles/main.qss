@@ -1,0 +1,113 @@
+/* Main Window Stylesheet */
+
+/* Booking info label */
+QLabel#booking_info {
+    color: #212529;
+    font-size: 13px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+/* Booking info - no bookings */
+QLabel#booking_info_no_bookings {
+    color: #6c757d;
+    font-size: 13px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+/* Booking info - upcoming (>30 min) */
+QLabel#booking_info_upcoming {
+    color: #155724;
+    font-size: 13px;
+    padding: 10px;
+    background-color: #d4edda;
+    border-radius: 5px;
+    font-weight: 500;
+}
+
+/* Booking info - soon (<=30 min) */
+QLabel#booking_info_soon {
+    color: #0c5460;
+    font-size: 13px;
+    padding: 10px;
+    background-color: #d1ecf1;
+    border-radius: 5px;
+    font-weight: 500;
+}
+
+/* Booking info - starting now */
+QLabel#booking_info_now {
+    color: #856404;
+    font-size: 13px;
+    padding: 10px;
+    background-color: #fff3cd;
+    border-radius: 5px;
+    font-weight: 500;
+}
+
+/* Booking info - error */
+QLabel#booking_info_error {
+    color: #721c24;
+    font-size: 13px;
+    padding: 10px;
+    background-color: #f8d7da;
+    border-radius: 5px;
+}
+
+/* Timer label */
+QLabel#timer_label {
+    color: #007bff;
+}
+
+/* Activate button */
+QPushButton#activate_button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+QPushButton#activate_button:hover {
+    background-color: #218838;
+}
+
+QPushButton#activate_button:disabled {
+    background-color: #6c757d;
+}
+
+/* Stop button */
+QPushButton#stop_button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+QPushButton#stop_button:hover {
+    background-color: #c82333;
+}
+
+QPushButton#stop_button:disabled {
+    background-color: #6c757d;
+}
+
+/* Status log text area */
+QTextEdit#log_text {
+    background-color: #ffffff;
+    color: #212529;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 8px;
+    font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+    font-size: 12px;
+    selection-background-color: #007bff;
+    selection-color: #ffffff;
+}
+

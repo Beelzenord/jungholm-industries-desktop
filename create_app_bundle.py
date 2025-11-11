@@ -12,7 +12,7 @@ from pathlib import Path
 def create_app_bundle():
     """Create a macOS .app bundle"""
     script_dir = Path(__file__).parent
-    app_name = "jungholm-industries-gateway"
+    app_name = "jungholm-instruments-gateway"
     app_bundle = script_dir / f"{app_name}.app"
     contents_dir = app_bundle / "Contents"
     macos_dir = contents_dir / "MacOS"
@@ -39,7 +39,7 @@ def create_app_bundle():
     
     # Create Info.plist
     info_plist = contents_dir / "Info.plist"
-    bundle_id = "com.jungholmindustries.gateway"
+    bundle_id = "com.jungholminstruments.gateway"
     
     plist_content = f"""<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -56,7 +56,7 @@ def create_app_bundle():
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
-    <string>jungholm industries Gateway</string>
+    <string>jungholm instruments Gateway</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
@@ -116,7 +116,7 @@ EXIT_CODE=$?
 if [ $EXIT_CODE -ne 0 ]; then
     echo "$(date): Application exited with code $EXIT_CODE" >> "$LOG_FILE"
     # Show error dialog on macOS
-    osascript -e 'display dialog "Application error. Check app_error.log for details." buttons {{"OK"}} default button "OK" with title "jungholm industries Gateway"'
+    osascript -e 'display dialog "Application error. Check app_error.log for details." buttons {{"OK"}} default button "OK" with title "jungholm instruments Gateway"'
 fi
 
 exit $EXIT_CODE

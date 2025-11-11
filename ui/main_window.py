@@ -10,6 +10,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QFont, QIcon
 from config import APP_NAME
+from ui.stylesheet_loader import load_stylesheet
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +85,9 @@ class MainWindow(QWidget):
         # Set window icon
         self.setWindowIcon(get_app_icon())
         
+        # Load and apply stylesheet from external file
+        self.setStyleSheet(load_stylesheet("main.qss"))
+        
         # Main layout
         layout = QVBoxLayout()
         layout.setSpacing(20)
@@ -120,17 +124,9 @@ class MainWindow(QWidget):
         booking_layout = QVBoxLayout()
         
         self.booking_info_label = QLabel("Checking for upcoming bookings...")
+        self.booking_info_label.setObjectName("booking_info")
         self.booking_info_label.setWordWrap(True)
         self.booking_info_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.booking_info_label.setStyleSheet("""
-            QLabel {
-                color: #212529;
-                font-size: 13px;
-                padding: 10px;
-                background-color: #f8f9fa;
-                border-radius: 5px;
-            }
-        """)
         booking_layout.addWidget(self.booking_info_label)
         
         booking_group.setLayout(booking_layout)
@@ -155,12 +151,12 @@ class MainWindow(QWidget):
         
         # Timer display
         self.timer_label = QLabel("00:00:00")
+        self.timer_label.setObjectName("timer_label")
         timer_font = QFont()
         timer_font.setPointSize(32)
         timer_font.setBold(True)
         self.timer_label.setFont(timer_font)
         self.timer_label.setAlignment(Qt.AlignCenter)
-        self.timer_label.setStyleSheet("color: #007bff;")
         session_layout.addWidget(self.timer_label)
         
         # Status label
@@ -172,45 +168,15 @@ class MainWindow(QWidget):
         button_layout = QHBoxLayout()
         
         self.activate_button = QPushButton("Activate")
+        self.activate_button.setObjectName("activate_button")
         self.activate_button.setMinimumHeight(45)
-        self.activate_button.setStyleSheet("""
-            QPushButton {
-                background-color: #28a745;
-                color: white;
-                border: none;
-                border-radius: 5px;
-                font-weight: bold;
-                font-size: 14px;
-            }
-            QPushButton:hover {
-                background-color: #218838;
-            }
-            QPushButton:disabled {
-                background-color: #6c757d;
-            }
-        """)
         self.activate_button.clicked.connect(self.handle_activate)
         button_layout.addWidget(self.activate_button)
         
         self.stop_button = QPushButton("Stop")
+        self.stop_button.setObjectName("stop_button")
         self.stop_button.setMinimumHeight(45)
         self.stop_button.setEnabled(False)
-        self.stop_button.setStyleSheet("""
-            QPushButton {
-                background-color: #dc3545;
-                color: white;
-                border: none;
-                border-radius: 5px;
-                font-weight: bold;
-                font-size: 14px;
-            }
-            QPushButton:hover {
-                background-color: #c82333;
-            }
-            QPushButton:disabled {
-                background-color: #6c757d;
-            }
-        """)
         self.stop_button.clicked.connect(self.handle_stop)
         button_layout.addWidget(self.stop_button)
         
@@ -223,21 +189,9 @@ class MainWindow(QWidget):
         log_layout = QVBoxLayout()
         
         self.log_text = QTextEdit()
+        self.log_text.setObjectName("log_text")
         self.log_text.setReadOnly(True)
         self.log_text.setMaximumHeight(150)
-        self.log_text.setStyleSheet("""
-            QTextEdit {
-                background-color: #ffffff;
-                color: #212529;
-                border: 1px solid #dee2e6;
-                border-radius: 5px;
-                padding: 8px;
-                font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
-                font-size: 12px;
-                selection-background-color: #007bff;
-                selection-color: #ffffff;
-            }
-        """)
         log_layout.addWidget(self.log_text)
         
         log_group.setLayout(log_layout)
@@ -368,15 +322,7 @@ class MainWindow(QWidget):
                     "No upcoming bookings found.\n\n"
                     "You can start a session at any time."
                 )
-                self.booking_info_label.setStyleSheet("""
-                    QLabel {
-                        color: #6c757d;
-                        font-size: 13px;
-                        padding: 10px;
-                        background-color: #f8f9fa;
-                        border-radius: 5px;
-                    }
-                """)
+                self.booking_info_label.setObjectName("booking_info_no_bookings")
                 return
             
             # Get the next booking
@@ -423,8 +369,7 @@ class MainWindow(QWidget):
                         f"Scheduled: {start_time_formatted}\n\n"
                         f"You can start your session."
                     )
-                    bg_color = "#fff3cd"
-                    text_color = "#856404"
+                    object_name = "booking_info_now"
                 else:
                     hours = minutes_until // 60
                     mins = minutes_until % 60
@@ -439,8 +384,7 @@ class MainWindow(QWidget):
                         f"Scheduled: {start_time_formatted}\n\n"
                         f"Get ready to start your session."
                     )
-                    bg_color = "#d1ecf1"
-                    text_color = "#0c5460"
+                    object_name = "booking_info_soon"
             else:
                 # More than 30 minutes away
                 hours = minutes_until // 60
@@ -456,33 +400,21 @@ class MainWindow(QWidget):
                     f"Scheduled: {start_time_formatted}\n"
                     f"Time until: {time_str}"
                 )
-                bg_color = "#d4edda"
-                text_color = "#155724"
+                object_name = "booking_info_upcoming"
             
             self.booking_info_label.setText(message)
-            self.booking_info_label.setStyleSheet(f"""
-                QLabel {{
-                    color: {text_color};
-                    font-size: 13px;
-                    padding: 10px;
-                    background-color: {bg_color};
-                    border-radius: 5px;
-                    font-weight: 500;
-                }}
-            """)
+            self.booking_info_label.setObjectName(object_name)
+            # Refresh stylesheet to apply new object name styles
+            self.booking_info_label.style().unpolish(self.booking_info_label)
+            self.booking_info_label.style().polish(self.booking_info_label)
             
         except Exception as e:
             logger.error(f"Failed to check upcoming bookings: {e}")
             self.booking_info_label.setText("Unable to check for upcoming bookings.")
-            self.booking_info_label.setStyleSheet("""
-                QLabel {
-                    color: #721c24;
-                    font-size: 13px;
-                    padding: 10px;
-                    background-color: #f8d7da;
-                    border-radius: 5px;
-                }
-            """)
+            self.booking_info_label.setObjectName("booking_info_error")
+            # Refresh stylesheet to apply new object name styles
+            self.booking_info_label.style().unpolish(self.booking_info_label)
+            self.booking_info_label.style().polish(self.booking_info_label)
     
     def setup_offline_queue_timer(self):
         """Setup timer to process offline queue periodically"""

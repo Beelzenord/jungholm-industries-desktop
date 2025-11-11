@@ -1,0 +1,34 @@
+/* Message Box Stylesheet */
+
+QMessageBox {
+    background-color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+QMessageBox QLabel {
+    color: #212529;
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 300px;
+    padding: 10px;
+}
+
+QMessageBox QPushButton {
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    min-width: 80px;
+}
+
+QMessageBox QPushButton:hover {
+    background-color: #0056b3;
+}
+
+QMessageBox QPushButton:pressed {
+    background-color: #004085;
+}
+

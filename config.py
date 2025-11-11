@@ -12,7 +12,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL", "")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
 
 # App configuration
-APP_NAME = "jungholm industries"
+APP_NAME = "jungholm instruments"
 APP_VERSION = "1.0.0"
 
 # Storage keys

@@ -1,0 +1,79 @@
+/* Login Window Stylesheet */
+
+/* Base widget styling */
+QWidget {
+    background-color: #f8f9fa;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    color: #212529;
+}
+
+/* Title label */
+QLabel#title {
+    color: #212529;
+    margin-bottom: 10px;
+}
+
+/* Subtitle label */
+QLabel#subtitle {
+    color: #6c757d;
+    margin-bottom: 20px;
+}
+
+/* Form labels - using ID selector for highest specificity */
+QLabel#form_label {
+    color: #212529;
+    font-weight: 600;
+    font-size: 13px;
+    padding-right: 10px;
+}
+
+/* Also target form layout labels for broader compatibility */
+QFormLayout QLabel {
+    color: #212529;
+    font-weight: 600;
+    font-size: 13px;
+    padding-right: 10px;
+}
+
+/* Input fields */
+QLineEdit {
+    background-color: white;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 14px;
+    color: #212529;
+}
+
+QLineEdit:focus {
+    border: 2px solid #007bff;
+    background-color: #ffffff;
+}
+
+QLineEdit:hover {
+    border: 2px solid #adb5bd;
+}
+
+/* Login button */
+QPushButton#login_button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    padding: 12px;
+}
+
+QPushButton#login_button:hover {
+    background-color: #0056b3;
+}
+
+QPushButton#login_button:pressed {
+    background-color: #004085;
+}
+
+QPushButton#login_button:disabled {
+    background-color: #6c757d;
+    color: #ffffff;
+}
+
