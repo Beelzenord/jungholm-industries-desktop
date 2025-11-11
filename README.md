@@ -32,12 +32,29 @@ pip install -r requirements.txt
    - Fill in your `SUPABASE_URL` and `SUPABASE_KEY`
    - Or set them as environment variables
 
+3. Generate platform-specific icons (optional but recommended):
+   - **macOS**: 
+     - Run `python create_macos_icon.py` to generate a `.icns` file with proper macOS icon format (rounded corners, multiple resolutions)
+     - Run `python create_app_bundle.py` to create a `.app` bundle for proper macOS dock icon display
+     - **Important**: For proper dock icon display with rounded corners and correct dimensions on macOS, use the `.app` bundle instead of running `python main.py` directly
+   - **Windows**: For best results, create a `.ico` file from `assets/jungholm-logo.jpeg` and place it in the `assets/` directory
+   - The app will automatically use the appropriate icon format for each platform
+
 ## Usage
 
-Run the application:
+### macOS (Recommended - Proper Dock Icon)
+For proper macOS dock icon display with rounded corners:
+```bash
+open jungholm-industries-gateway.app
+```
+Or double-click `jungholm-industries-gateway.app` in Finder.
+
+### All Platforms (Direct Python)
+Run the application directly:
 ```bash
 python main.py
 ```
+**Note**: On macOS, running directly may show incorrect dock icon dimensions. Use the `.app` bundle for best results.
 
 1. Login with your Supabase credentials
 2. Select an instrument from the dropdown

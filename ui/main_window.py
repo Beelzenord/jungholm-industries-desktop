@@ -2,15 +2,59 @@
 import logging
 from datetime import datetime, timezone
 from typing import Optional
+from pathlib import Path
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QComboBox, QMessageBox, QGroupBox, QTextEdit
 )
 from PySide6.QtCore import Qt, QTimer, Signal
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QIcon
 from config import APP_NAME
 
 logger = logging.getLogger(__name__)
+
+
+def get_app_icon():
+    """
+    Get the application icon, platform-aware.
+    - macOS: Prefers .icns format (proper macOS icon with rounded corners)
+    - Windows: Uses .ico or .jpeg/.png directly
+    - Linux: Uses .png or .jpeg
+    """
+    import platform
+    assets_dir = Path(__file__).parent.parent / "assets"
+    system = platform.system()
+    
+    # macOS: prefer .icns format for proper app icon
+    if system == "Darwin":
+        icns_path = assets_dir / "jungholm-logo.icns"
+        if icns_path.exists():
+            return QIcon(str(icns_path))
+        # Fallback to source image
+        jpeg_path = assets_dir / "jungholm-logo.jpeg"
+        if jpeg_path.exists():
+            return QIcon(str(jpeg_path))
+    
+    # Windows: use .ico if available, otherwise JPEG/PNG
+    elif system == "Windows":
+        ico_path = assets_dir / "jungholm-logo.ico"
+        if ico_path.exists():
+            return QIcon(str(ico_path))
+        # Fallback to JPEG
+        jpeg_path = assets_dir / "jungholm-logo.jpeg"
+        if jpeg_path.exists():
+            return QIcon(str(jpeg_path))
+    
+    # Linux and others: use JPEG or PNG
+    else:
+        jpeg_path = assets_dir / "jungholm-logo.jpeg"
+        if jpeg_path.exists():
+            return QIcon(str(jpeg_path))
+        png_path = assets_dir / "jungholm-logo.png"
+        if png_path.exists():
+            return QIcon(str(png_path))
+    
+    return QIcon()  # Return empty icon if file not found
 
 
 class MainWindow(QWidget):
@@ -36,6 +80,9 @@ class MainWindow(QWidget):
         """Initialize the UI"""
         self.setWindowTitle(f"{APP_NAME} - Gateway")
         self.setMinimumSize(600, 500)
+        
+        # Set window icon
+        self.setWindowIcon(get_app_icon())
         
         # Main layout
         layout = QVBoxLayout()

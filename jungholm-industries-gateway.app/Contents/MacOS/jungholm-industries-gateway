@@ -1,0 +1,34 @@
+#!/bin/bash
+# Change to script directory
+cd "/Users/alenor/gateway_python"
+
+# Set PYTHONPATH to include the script directory
+export PYTHONPATH="/Users/alenor/gateway_python:$PYTHONPATH"
+
+# Set Qt plugin path so Qt can find the cocoa platform plugin
+export QT_PLUGIN_PATH="/opt/anaconda3/lib/python3.13/site-packages/PySide6/Qt/plugins"
+
+# Load environment variables from .env file if it exists
+if [ -f "/Users/alenor/gateway_python/.env" ]; then
+    set -a
+    source "/Users/alenor/gateway_python/.env"
+    set +a
+fi
+
+# Create log file for errors
+LOG_FILE="/Users/alenor/gateway_python/app_error.log"
+echo "$(date): Starting application" >> "$LOG_FILE"
+
+# Run the Python application
+# Capture both stdout and stderr for debugging
+"/opt/anaconda3/bin/python" "/Users/alenor/gateway_python/main.py" "$@" >> "$LOG_FILE" 2>&1
+EXIT_CODE=$?
+
+# If app exited with an error, show it
+if [ $EXIT_CODE -ne 0 ]; then
+    echo "$(date): Application exited with code $EXIT_CODE" >> "$LOG_FILE"
+    # Show error dialog on macOS
+    osascript -e 'display dialog "Application error. Check app_error.log for details." buttons {"OK"} default button "OK" with title "jungholm industries Gateway"'
+fi
+
+exit $EXIT_CODE
