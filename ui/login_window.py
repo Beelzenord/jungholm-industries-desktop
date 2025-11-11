@@ -11,6 +11,47 @@ from config import APP_NAME
 logger = logging.getLogger(__name__)
 
 
+def create_styled_message_box(parent, icon_type, title, message):
+    """Create a styled QMessageBox with clear, readable text and good contrast"""
+    msg_box = QMessageBox(parent)
+    msg_box.setIcon(icon_type)
+    msg_box.setWindowTitle(title)
+    msg_box.setText(message)
+    
+    # Apply clear, high-contrast styling
+    msg_box.setStyleSheet("""
+        QMessageBox {
+            background-color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        QMessageBox QLabel {
+            color: #212529;
+            font-size: 14px;
+            font-weight: 500;
+            min-width: 300px;
+            padding: 10px;
+        }
+        QMessageBox QPushButton {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            min-width: 80px;
+        }
+        QMessageBox QPushButton:hover {
+            background-color: #0056b3;
+        }
+        QMessageBox QPushButton:pressed {
+            background-color: #004085;
+        }
+    """)
+    
+    return msg_box
+
+
 class LoginWindow(QWidget):
     """Login window with email and password fields"""
     
@@ -192,7 +233,12 @@ class LoginWindow(QWidget):
         password = self.password_input.text()
         
         if not email or not password:
-            QMessageBox.warning(self, "Validation Error", "Please enter both email and password.")
+            msg_box = create_styled_message_box(
+                self, QMessageBox.Icon.Warning, 
+                "Validation Error", 
+                "Please enter both email and password."
+            )
+            msg_box.exec()
             return
         
         # Disable button during login
@@ -203,10 +249,20 @@ class LoginWindow(QWidget):
         success, error_msg = self.supabase_client.login(email, password)
         
         if success:
-            QMessageBox.information(self, "Success", "Login successful!")
+            msg_box = create_styled_message_box(
+                self, QMessageBox.Icon.Information,
+                "Success",
+                "Login successful! Welcome to the Gateway Application."
+            )
+            msg_box.exec()
             self.login_successful.emit()
         else:
-            QMessageBox.critical(self, "Login Failed", f"Login failed: {error_msg or 'Unknown error'}")
+            msg_box = create_styled_message_box(
+                self, QMessageBox.Icon.Critical,
+                "Login Failed",
+                f"Login failed: {error_msg or 'Unknown error'}\n\nPlease check your credentials and try again."
+            )
+            msg_box.exec()
             self.login_button.setEnabled(True)
             self.login_button.setText("Login")
             self.password_input.clear()
